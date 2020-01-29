@@ -1,5 +1,21 @@
 ﻿using System;
 
+/* Common intersections in a list of intervals
+ * I'm looking for an algorithm to find the common intersections of a list of sets (of intervals). 
+ * To illustrate an example, let's imagine that we have home appliances and we want to know when 
+ * all of them are turned on.
+ * 
+ * TV: {1,10}, {16, 19}
+ * Radio: {2, 5}, {12, 18}
+ * Oven: {4, 5}, {15, 16}
+ * 
+ * Each device is connected in several intervals. If you analyze the hours (in the form {start, end}), 
+ * you will soon realize that the intervals in which all of them are turned on are:
+ * {4, 5}, {16, 16}
+ * 
+ * Ref: https://www.reddit.com/r/algorithms/comments/euqcqz/common_intersections_in_a_list_of_intervals/
+ */
+
 namespace _01_CommonIntersection
 {
     class Program
