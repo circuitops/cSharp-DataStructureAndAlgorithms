@@ -31,21 +31,22 @@ namespace _01_CommonIntersection
                             Console.WriteLine("\tAdded");
                             break;
                         case "2":
+                            view(appCollection);
                             break;
                         case "3":
+                            commonInterval(appCollection);
                             break;
                         case "x": flag = false; break;
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    Console.WriteLine("Parse Failed");
+                    Console.WriteLine($"\t***{ex.Message.ToString()}***");
                 }
             }
 
             Console.Read();
         }
-
         static appliances[] addAppliances(appliances[] collection, appliances item)
         {
             Array.Resize(ref collection, collection.Length + 1);
@@ -85,18 +86,25 @@ namespace _01_CommonIntersection
                         }
                         else if (input[i].Equals('}'))
                         {
-                            Array.Resize(ref connected, connected.Length + 1);
-                            connected[connected.Length - 1] = new appUsedHour
+                            if(int.Parse(start) >= 1 && int.Parse(start) <= 24 && (int.Parse(end) >= 1 && int.Parse(end) <= 24))
                             {
-                                start = int.Parse(start),
-                                end = int.Parse(end)
-                            };
+                                Array.Resize(ref connected, connected.Length + 1);
+                                connected[connected.Length - 1] = new appUsedHour
+                                {
+                                    start = int.Parse(start),
+                                    end = int.Parse(end)
+                                };
 
-                            start = string.Empty;
-                            end = string.Empty;
-                            flagStart = false;
-                            flagEnd = false;
-                            i++;
+                                start = string.Empty;
+                                end = string.Empty;
+                                flagStart = false;
+                                flagEnd = false;
+                                i++;
+                            }
+                            else
+                            {
+                                throw new Exception("Parse Error");
+                            }
                         }
 
                         if (flagStart && !input[i].Equals(' '))
@@ -123,7 +131,7 @@ namespace _01_CommonIntersection
             }
             catch
             {
-                throw new Exception();
+                throw new Exception("Parse Error");
             }
 
             return new appliances
@@ -133,7 +141,81 @@ namespace _01_CommonIntersection
         }
         static void view(appliances[] collection)
         {
+            Console.WriteLine("\n\tVIEW(2)");
+            for (int i = 0; i < collection.Length; i++)
+            {
+                Console.Write($"\t{collection[i].applianceName}");
+                Console.Write(": {");
+                for (int j = 0; j < collection[i].appIntervals.Length; j++)
+                {
+                    Console.Write($"{collection[i].appIntervals[j].start},{collection[i].appIntervals[j].end}");
+                    Console.Write("}");
+                    if(j != collection[i].appIntervals.Length-1)
+                    {
+                        Console.Write(", ");
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+        static void commonInterval(appliances[] collection)
+        {
+            var item = new range[collection.Length];
+            var common = new string[0];
+            var temp = new string[0];
+            for (int i = 0; i < collection.Length; i++)
+            {
+                item[i].value = new int[24];
+                for (int j = 0; j < collection[i].appIntervals.Length; j++)
+                {
+                    var start = collection[i].appIntervals[j].start;
+                    var end = collection[i].appIntervals[j].end;
+                    
+                    for (int k = 0; k < item[i].value.Length; k++)
+                    {
+                        if(k >= (start-1) && k <= (end-1))
+                        {
+                            item[i].value[k] = 1;
+                        }
+                    }
+                }
+            }
 
+            var flag2 = false;
+            for (int i = 0; i < 24; i++)
+            {
+                var flag = item.Length;
+                for (int j = 0; j < item.Length; j++)
+                {
+                    if (item[j].value[i] != 1)
+                    {
+                        flag--;
+                        if (flag2)
+                        {
+                            Array.Resize(ref temp, temp.Length + 1);
+                            temp[temp.Length - 1] = i.ToString();
+                            flag2 = false;
+                        }
+                        break;
+                    }
+                }
+
+                if(flag == item.Length)
+                {
+                    Array.Resize(ref temp, temp.Length + 1);
+                    temp[temp.Length - 1] = (i + 1).ToString();
+                    if ((temp.Length % 2) != 0)
+                    {
+                        flag2 = true;
+                    }
+                    else
+                    {
+                        flag2 = false;
+                    }
+                }
+            }
+
+            return;
         }
     }
 
@@ -142,10 +224,13 @@ namespace _01_CommonIntersection
         public string applianceName;
         public appUsedHour[] appIntervals;
     }
-    
     public struct appUsedHour
     {
         public int start;
         public int end;
+    }
+    public struct range
+    {
+        public int[] value;
     }
 }
