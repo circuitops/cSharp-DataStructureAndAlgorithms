@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace _01_CommonIntersection
 {
@@ -34,7 +30,7 @@ namespace _01_CommonIntersection
                             view(appCollection);
                             break;
                         case "3":
-                            commonInterval(appCollection);
+                            printCommonInterval(appCollection);
                             break;
                         case "x": flag = false; break;
                     }
@@ -44,7 +40,6 @@ namespace _01_CommonIntersection
                     Console.WriteLine($"\t***{ex.Message.ToString()}***");
                 }
             }
-
             Console.Read();
         }
         static appliances[] addAppliances(appliances[] collection, appliances item)
@@ -128,6 +123,10 @@ namespace _01_CommonIntersection
                         }
                     }
                 }
+                if (connected.Length == 0)
+                {
+                    throw new Exception("Parse Error");
+                }
             }
             catch
             {
@@ -145,10 +144,10 @@ namespace _01_CommonIntersection
             for (int i = 0; i < collection.Length; i++)
             {
                 Console.Write($"\t{collection[i].applianceName}");
-                Console.Write(": {");
+                Console.Write(": ");
                 for (int j = 0; j < collection[i].appIntervals.Length; j++)
                 {
-                    Console.Write($"{collection[i].appIntervals[j].start},{collection[i].appIntervals[j].end}");
+                    Console.Write("{"+$"{collection[i].appIntervals[j].start},{collection[i].appIntervals[j].end}");
                     Console.Write("}");
                     if(j != collection[i].appIntervals.Length-1)
                     {
@@ -158,29 +157,47 @@ namespace _01_CommonIntersection
                 Console.WriteLine();
             }
         }
-        static void commonInterval(appliances[] collection)
+        static void printCommonInterval(appliances[] collection)
+        {
+            var common = getCommon(preTable(collection));
+
+            Console.WriteLine("\n\tView Common(3)");
+            Console.Write($"\tCommon Interval:  ");
+            for (int i = 0; i < common.Length; i++)
+            {
+                if ((i % 2) != 0)
+                {
+                    Console.Write($"{common[i]}" + "} ");
+                }
+                else
+                {
+                    Console.Write("{" + $"{common[i]},");
+                }
+            }
+        }
+        static range[] preTable(appliances[] collection)
         {
             var item = new range[collection.Length];
-            var common = new string[0];
-            var temp = new string[0];
             for (int i = 0; i < collection.Length; i++)
             {
                 item[i].value = new int[24];
                 for (int j = 0; j < collection[i].appIntervals.Length; j++)
                 {
-                    var start = collection[i].appIntervals[j].start;
-                    var end = collection[i].appIntervals[j].end;
-                    
                     for (int k = 0; k < item[i].value.Length; k++)
                     {
-                        if(k >= (start-1) && k <= (end-1))
+                        if (k >= (collection[i].appIntervals[j].start - 1) && 
+                            k <= (collection[i].appIntervals[j].end - 1))
                         {
                             item[i].value[k] = 1;
                         }
                     }
                 }
             }
-
+            return item;
+        }
+        static string[] getCommon(range[] item)
+        {
+            var temp = new string[0];
             var flag2 = false;
             for (int i = 0; i < 24; i++)
             {
@@ -192,30 +209,26 @@ namespace _01_CommonIntersection
                         flag--;
                         if (flag2)
                         {
-                            Array.Resize(ref temp, temp.Length + 1);
-                            temp[temp.Length - 1] = i.ToString();
+                            temp = addCommon(temp, i.ToString());
                             flag2 = false;
                         }
                         break;
                     }
                 }
 
-                if(flag == item.Length)
+                if (flag == item.Length)
                 {
-                    Array.Resize(ref temp, temp.Length + 1);
-                    temp[temp.Length - 1] = (i + 1).ToString();
-                    if ((temp.Length % 2) != 0)
-                    {
-                        flag2 = true;
-                    }
-                    else
-                    {
-                        flag2 = false;
-                    }
+                    temp = addCommon(temp, (i + 1).ToString());
+                    flag2 = (temp.Length % 2) != 0 ? true : false;
                 }
             }
-
-            return;
+            return temp;
+        }
+        static string[] addCommon(string[] array, string item)
+        {
+            Array.Resize(ref array, array.Length + 1);
+            array[array.Length - 1] = item;
+            return array;
         }
     }
 
